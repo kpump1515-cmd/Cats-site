@@ -185,6 +185,14 @@
     h2{font-size:27px}
   }
 </style>
+
+<style>
+  .ticker{background:#1338be;color:#fff;overflow:hidden;white-space:nowrap;padding:12px 0;border-top:2px solid #f47b20;border-bottom:2px solid #f47b20}
+  .ticker-track{display:inline-block;padding-left:100%;animation:ticker-scroll 22s linear infinite;font-weight:800;letter-spacing:3px;text-transform:uppercase;font-size:15px}
+  .ticker-track span{padding:0 42px}
+  .ticker:hover .ticker-track{animation-play-state:paused}
+  @keyframes ticker-scroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+</style>
 </head>
 <body>
 <header>
@@ -193,6 +201,7 @@
     <a href="index.html" style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);text-decoration:none">&larr; Home</a>
   </div>
 </header>
+<div class="ticker"><div class="ticker-track"><span>Children Is Our Future In Motion</span><span>Children Is Our Future In Motion</span><span>Children Is Our Future In Motion</span><span>Children Is Our Future In Motion</span><span>Children Is Our Future In Motion</span><span>Children Is Our Future In Motion</span></div></div>
 
 <section id="staff">
   <div class="wrap">
