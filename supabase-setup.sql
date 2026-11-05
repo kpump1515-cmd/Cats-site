@@ -50,3 +50,17 @@ select * from (values
   ('Mid Term School Drive', 'January - TBA', date '2027-01-31')
 ) v(title, when_text, sort_date)
 where not exists (select 1 from public.events);
+
+-- PAGE TEXT AND PHOTOS (every page in the menu, including Meet the Staff)
+create table if not exists public.site_content (
+  page text not null,
+  key text not null,
+  value text not null,
+  updated_at timestamptz not null default now(),
+  primary key (page, key)
+);
+alter table public.site_content enable row level security;
+drop policy if exists "content public read" on public.site_content;
+drop policy if exists "content staff write" on public.site_content;
+create policy "content public read" on public.site_content for select to anon, authenticated using (true);
+create policy "content staff write" on public.site_content for all to authenticated using (true) with check (true);

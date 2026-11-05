@@ -38,6 +38,12 @@ textarea{min-height:70px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:600px){.two{grid-template-columns:1fr}h1{font-size:34px}}
 footer{background:var(--deep);color:#c9d3ff;text-align:center;padding:30px 24px;font-size:13px}
+
+  #pgFields .fld{border:1px solid #e3e6ee;border-radius:10px;padding:10px;margin:10px 0}
+  #pgFields .fld img{max-width:160px;max-height:160px;display:block;border-radius:8px;margin:6px 0}
+  #pgFields .fld small{color:#777;font-size:12px}
+  #pgFields textarea{min-height:60px}
+  select#pgSel{width:100%;padding:10px;border-radius:8px;border:1px solid #ccd;font-size:15px;margin-bottom:6px}
 </style></head><body>
 <header><div class="nav"><a class="logo" href="index.html"><img src="images/logo.png" alt="Logo"><span>Children Are <b>Future Successors</b></span></a><a class="back" href="index.html">&larr; Home</a></div></header>
 <h1>Staff Portal</h1>
@@ -62,6 +68,29 @@ footer{background:var(--deep);color:#c9d3ff;text-align:center;padding:30px 24px;
 
 <div id="app">
   <div class="top"><div>Logged in as <b id="who"></b></div><button class="btn ghost small" id="logout">Log Out</button></div>
+
+
+  <div class="card">
+    <h2>Edit Pages</h2>
+    <label for="pgSel">Pick a page from the menu</label>
+    <select id="pgSel">
+      <option value="index">Home (Our Mission, Contact, Donations)</option>
+      <option value="services">Services</option>
+      <option value="staff">Meet the Staff</option>
+      <option value="tiffany-salter">Staff bio: Tiffany Salter</option>
+      <option value="arianna-salter">Staff bio: Arianna Salter</option>
+      <option value="dondre-smiley">Staff bio: Dondre Smiley</option>
+      <option value="rikiyah-fowler">Staff bio: Rikiyah Fowler</option>
+      <option value="gallery">Photo Gallery (title)</option>
+      <option value="newsletter">Newsletter</option>
+      <option value="events">Upcoming Events (title)</option>
+      <option value="inspiration">Words We Live By</option>
+    </select>
+    <div id="pgFields"></div>
+    <button class="btn" type="button" id="pgSave">Save Changes</button>
+    <a class="btn ghost" id="pgView" href="index.html" target="_blank" rel="noopener" style="text-decoration:none">View Page</a>
+    <div class="msg" id="pgMsg"></div>
+  </div>
 
   <div class="card">
     <h2>Events</h2>
@@ -101,7 +130,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const say = (id, t, err) => { $(id).textContent = t; $(id).className = 'msg' + (err ? ' err' : ''); };
 
-function showApp(user){ $('loginBox').style.display='none'; $('resetBox').style.display='none'; $('app').style.display='block'; $('who').textContent=user.email; loadEvents(); loadPhotos(); }
+function showApp(user){ $('loginBox').style.display='none'; $('resetBox').style.display='none'; $('app').style.display='block'; $('who').textContent=user.email; loadEvents(); loadPhotos(); loadPage(); }
 function showLogin(){ $('app').style.display='none'; $('resetBox').style.display='none'; $('loginBox').style.display='block'; }
 
 sb.auth.onAuthStateChange((ev, session) => {
@@ -188,6 +217,47 @@ $('phForm').addEventListener('submit', async e => {
     done++;
   }
   say('phMsg', `${done} photo${done===1?'':'s'} added.`); $('phForm').reset(); loadPhotos();
+});
+// PAGE TEXT AND PHOTOS
+let pgFields = [];
+async function loadPage(){
+  const page = $('pgSel').value; $('pgView').href = page + '.html'; $('pgFields').innerHTML = '<p class="msg">Loading...</p>'; say('pgMsg','');
+  const html = await (await fetch(page + '.html', { cache: 'no-store' })).text();
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const { data } = await sb.from('site_content').select('key,value').eq('page', page);
+  const saved = Object.fromEntries((data || []).map(r => [r.key, r.value]));
+  pgFields = [...doc.querySelectorAll('[data-edit],[data-edit-img]')].map(el => {
+    const img = el.hasAttribute('data-edit-img');
+    const key = img ? el.getAttribute('data-edit-img') : el.getAttribute('data-edit');
+    const def = img ? el.getAttribute('src') : el.textContent.replace(/\s+/g,' ').trim();
+    const kind = img ? 'Photo' : ({h1:'Title',h2:'Heading',h3:'Name / Heading',p:'Paragraph',span:'Label',a:'Button / Link text',div:'Small text'}[el.tagName.toLowerCase()] || 'Text');
+    return { key, img, def, kind, val: saved[key] ?? def, changed: false, file: null };
+  });
+  $('pgFields').innerHTML = pgFields.map((f,i) => f.img
+    ? `<div class="fld"><small>${f.kind}</small><img src="${esc(f.val)}" id="pv${i}" alt=""><input type="file" accept="image/*" data-i="${i}"></div>`
+    : `<div class="fld"><small>${f.kind}</small><textarea data-i="${i}">${esc(f.val)}</textarea></div>`).join('') || '<p class="msg">Nothing to edit on this page.</p>';
+}
+$('pgSel').addEventListener('change', loadPage);
+$('pgFields').addEventListener('input', e => { const i = e.target.dataset.i; if (i === undefined) return; const f = pgFields[i];
+  if (f.img) { f.file = e.target.files[0]; if (f.file) { $('pv'+i).src = URL.createObjectURL(f.file); f.changed = true; } }
+  else { f.val = e.target.value; f.changed = true; } });
+$('pgSave').addEventListener('click', async () => {
+  const page = $('pgSel').value; const todo = pgFields.filter(f => f.changed);
+  if (!todo.length) return say('pgMsg','No changes to save.');
+  say('pgMsg','Saving...');
+  for (const f of todo) {
+    let value = f.val;
+    if (f.img) {
+      const blob = await shrink(f.file); const path = `pages/${page}-${f.key}-${Date.now()}.jpg`;
+      const up = await sb.storage.from('photos').upload(path, blob, { contentType: 'image/jpeg' });
+      if (up.error) return say('pgMsg','Photo upload failed: ' + up.error.message, true);
+      value = sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
+    }
+    const { error } = await sb.from('site_content').upsert({ page, key: f.key, value: value.trim(), updated_at: new Date().toISOString() });
+    if (error) return say('pgMsg','Could not save: ' + error.message, true);
+    f.changed = false; f.val = value;
+  }
+  say('pgMsg', 'Saved. Changes are live on the site now.');
 });
 </script>
 </body></html>
