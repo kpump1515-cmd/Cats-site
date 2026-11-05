@@ -5,12 +5,11 @@ const { data, error } = await sb.from('site_content').select('key,value').eq('pa
 if (!error && data) {
   for (const row of data) {
     if (row.key.startsWith('i')) {
+      if (document.querySelector(`[data-edit-img="${row.key}"][src*="donation-qr"]`)) continue;
       document.querySelectorAll(`[data-edit-img="${row.key}"]`).forEach(img => {
         img.src = row.value;
         const a = img.closest('a'); if (a && /\.(jpe?g|png|webp)$/i.test(a.getAttribute('href') || '')) a.href = row.value;
       });
-    } else {
-      document.querySelectorAll(`[data-edit="${row.key}"]`).forEach(el => { el.textContent = row.value; });
     }
   }
 }

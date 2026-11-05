@@ -72,19 +72,16 @@ footer{background:var(--deep);color:#c9d3ff;text-align:center;padding:30px 24px;
 
   <div class="card">
     <h2>Edit Pages</h2>
-    <label for="pgSel">Pick a page from the menu</label>
+    <p class="msg" style="margin-top:0">Change the photos on each page. Tap a photo's Choose File, pick the new one, then tap Save Changes.</p>
+    <label for="pgSel">Pick a page</label>
     <select id="pgSel">
-      <option value="index">Home (Our Mission, Contact, Donations)</option>
-      <option value="services">Services</option>
+      <option value="index">Home (the 8 photos)</option>
       <option value="staff">Meet the Staff</option>
       <option value="tiffany-salter">Staff bio: Tiffany Salter</option>
       <option value="arianna-salter">Staff bio: Arianna Salter</option>
       <option value="dondre-smiley">Staff bio: Dondre Smiley</option>
       <option value="rikiyah-fowler">Staff bio: Rikiyah Fowler</option>
-      <option value="gallery">Photo Gallery (title)</option>
-      <option value="newsletter">Newsletter</option>
-      <option value="events">Upcoming Events (title)</option>
-      <option value="inspiration">Words We Live By</option>
+      <option value="newsletter">Newsletter pages</option>
     </select>
     <div id="pgFields"></div>
     <button class="btn" type="button" id="pgSave">Save Changes</button>
@@ -226,7 +223,7 @@ async function loadPage(){
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const { data } = await sb.from('site_content').select('key,value').eq('page', page);
   const saved = Object.fromEntries((data || []).map(r => [r.key, r.value]));
-  pgFields = [...doc.querySelectorAll('[data-edit],[data-edit-img]')].map(el => {
+  pgFields = [...doc.querySelectorAll('[data-edit-img]')].filter(el => !/donation-qr/i.test(el.getAttribute('src') || '')).map(el => {
     const img = el.hasAttribute('data-edit-img');
     const key = img ? el.getAttribute('data-edit-img') : el.getAttribute('data-edit');
     const def = img ? el.getAttribute('src') : el.textContent.replace(/\s+/g,' ').trim();
@@ -235,7 +232,7 @@ async function loadPage(){
   });
   $('pgFields').innerHTML = pgFields.map((f,i) => f.img
     ? `<div class="fld"><small>${f.kind}</small><img src="${esc(f.val)}" id="pv${i}" alt=""><input type="file" accept="image/*" data-i="${i}"></div>`
-    : `<div class="fld"><small>${f.kind}</small><textarea data-i="${i}">${esc(f.val)}</textarea></div>`).join('') || '<p class="msg">Nothing to edit on this page.</p>';
+    : `<div class="fld"><small>${f.kind}</small><textarea data-i="${i}">${esc(f.val)}</textarea></div>`).join('') || '<p class="msg">No photos to change on this page.</p>';
 }
 $('pgSel').addEventListener('change', loadPage);
 $('pgFields').addEventListener('input', e => { const i = e.target.dataset.i; if (i === undefined) return; const f = pgFields[i];
