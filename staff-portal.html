@@ -70,17 +70,29 @@ footer{background:var(--deep);color:#c9d3ff;text-align:center;padding:30px 24px;
   <div class="top"><div>Logged in as <b id="who"></b></div><button class="btn ghost small" id="logout">Log Out</button></div>
 
 
+
+  <div class="card">
+    <h2>Meet the Staff</h2>
+    <form id="stForm">
+      <input type="hidden" id="stId">
+      <label for="stName">Name</label><input id="stName" required>
+      <label for="stTitle">Job title</label><input id="stTitle" placeholder="Volunteer Coordinator">
+      <label for="stBio">Bio</label><textarea id="stBio"></textarea>
+      <label for="stPhoto">Photo</label><input type="file" id="stPhoto" accept="image/*">
+      <label for="stOrder">Order on the page (1 = first)</label><input id="stOrder" type="number" min="1">
+      <button class="btn" type="submit" id="stSave">Add Staff Member</button>
+      <button class="btn ghost" type="button" id="stCancel" style="display:none">Cancel</button>
+      <div class="msg" id="stMsg"></div>
+    </form>
+    <div id="stList"></div>
+  </div>
+
   <div class="card">
     <h2>Edit Pages</h2>
     <p class="msg" style="margin-top:0">Change the photos on each page. Tap a photo's Choose File, pick the new one, then tap Save Changes.</p>
     <label for="pgSel">Pick a page</label>
     <select id="pgSel">
       <option value="index">Home (the 8 photos)</option>
-      <option value="staff">Meet the Staff</option>
-      <option value="tiffany-salter">Staff bio: Tiffany Salter</option>
-      <option value="arianna-salter">Staff bio: Arianna Salter</option>
-      <option value="dondre-smiley">Staff bio: Dondre Smiley</option>
-      <option value="rikiyah-fowler">Staff bio: Rikiyah Fowler</option>
       <option value="newsletter">Newsletter pages</option>
     </select>
     <div id="pgFields"></div>
@@ -127,7 +139,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const say = (id, t, err) => { $(id).textContent = t; $(id).className = 'msg' + (err ? ' err' : ''); };
 
-function showApp(user){ $('loginBox').style.display='none'; $('resetBox').style.display='none'; $('app').style.display='block'; $('who').textContent=user.email; loadEvents(); loadPhotos(); loadPage(); }
+function showApp(user){ $('loginBox').style.display='none'; $('resetBox').style.display='none'; $('app').style.display='block'; $('who').textContent=user.email; loadEvents(); loadPhotos(); loadPage(); loadStaff(); }
 function showLogin(){ $('app').style.display='none'; $('resetBox').style.display='none'; $('loginBox').style.display='block'; }
 
 sb.auth.onAuthStateChange((ev, session) => {
@@ -255,6 +267,40 @@ $('pgSave').addEventListener('click', async () => {
     f.changed = false; f.val = value;
   }
   say('pgMsg', 'Saved. Changes are live on the site now.');
+});
+// STAFF MEMBERS
+let staff = [];
+const slugify = n => n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'staff';
+async function loadStaff(){
+  const { data, error } = await sb.from('staff_members').select('*').order('sort_order').order('created_at');
+  if (error) return $('stList').innerHTML = '<p class="msg err">Could not load staff.</p>';
+  staff = data;
+  $('stList').innerHTML = data.length ? data.map(p => `<div class="row"><div style="display:flex;gap:10px;align-items:center"><img src="${esc(p.photo_url||'images/logo.png')}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:8px"><div><b>${esc(p.name)}</b><small>${esc(p.title||'')}</small></div></div><div class="acts"><button class="btn ghost small" data-sedit="${p.id}">Edit</button><button class="btn red small" data-sdel="${p.id}">Remove</button></div></div>`).join('') : '<p class="msg">No staff yet.</p>';
+}
+function resetSt(){ $('stForm').reset(); $('stId').value=''; $('stSave').textContent='Add Staff Member'; $('stCancel').style.display='none'; }
+$('stCancel').addEventListener('click', resetSt);
+$('stList').addEventListener('click', async e => {
+  const ed = e.target.dataset.sedit, del = e.target.dataset.sdel;
+  if (ed) { const p = staff.find(x => String(x.id) === ed); $('stId').value=p.id; $('stName').value=p.name; $('stTitle').value=p.title||''; $('stBio').value=p.bio||''; $('stOrder').value=p.sort_order; $('stSave').textContent='Save Changes'; $('stCancel').style.display='inline-block'; $('stName').focus(); }
+  if (del) { const p = staff.find(x => String(x.id) === del); if (!confirm('Remove ' + p.name + ' from Meet the Staff?')) return;
+    const { error } = await sb.from('staff_members').delete().eq('id', del); say('stMsg', error ? 'Could not remove.' : 'Removed.', !!error); loadStaff(); }
+});
+$('stForm').addEventListener('submit', async e => {
+  e.preventDefault(); say('stMsg','Saving...');
+  const id = $('stId').value; const name = $('stName').value.trim();
+  const row = { name, title: $('stTitle').value.trim() || null, bio: $('stBio').value.trim() || null };
+  const ord = parseInt($('stOrder').value, 10); if (ord) row.sort_order = ord; else if (!id) row.sort_order = staff.length + 1;
+  const f = $('stPhoto').files[0];
+  if (f) {
+    const blob = await shrink(f); const path = `staff/${slugify(name)}-${Date.now()}.jpg`;
+    const up = await sb.storage.from('photos').upload(path, blob, { contentType: 'image/jpeg' });
+    if (up.error) return say('stMsg','Photo upload failed: ' + up.error.message, true);
+    row.photo_url = sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
+  }
+  if (!id) row.slug = slugify(name) + '-' + Date.now().toString(36).slice(-4);
+  const { error } = id ? await sb.from('staff_members').update(row).eq('id', id) : await sb.from('staff_members').insert(row);
+  say('stMsg', error ? 'Could not save: ' + error.message : (id ? 'Staff member updated.' : 'Staff member added.'), !!error);
+  if (!error) { resetSt(); loadStaff(); }
 });
 </script>
 </body></html>

@@ -206,7 +206,7 @@
 <div class="eyebrow" data-edit="t1">Our Team</div>
 <h2 data-edit="t2">Meet the Staff</h2>
 <p class="sub" data-edit="t3">The people behind the programs.</p>
-<div class="staff">
+<div class="staff" id="staffGrid">
 <a class="person" href="tiffany-salter.html">
 <img alt="Tiffany Salter" class="ph" data-edit-img="i1" src="images/tiffany.jpg"/>
 <div class="name"><h3 data-edit="t4">Tiffany Salter</h3><span data-edit="t5">Executive Director / CEO</span></div>
@@ -234,5 +234,14 @@
 <div class="fline">Phone: <a href="tel:+16468946937">(646) 894-6937</a></div>
 <div class="fline">Open Monday – Friday, 9:00 AM – 5:00 PM</div>
 </footer>
-<script src="content.js" type="module"></script></body>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const sb = createClient('https://dojnpcaehdyxtlmmeiff.supabase.co','sb_publishable_2vb4cfQllwG-bfBJDYUqXg_oAh1AWVk');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const { data, error } = await sb.from('staff_members').select('*').order('sort_order').order('created_at');
+if (!error && data && data.length) {
+  document.getElementById('staffGrid').innerHTML = data.map(p => `<a class="person" href="staff-member.html?s=${encodeURIComponent(p.slug)}"><img class="ph" src="${esc(p.photo_url || 'images/logo.png')}" alt="${esc(p.name)}"><div class="name"><h3>${esc(p.name)}</h3><span>${esc(p.title)}</span></div></a>`).join('');
+}
+</script>
+</body>
 </html>
