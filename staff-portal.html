@@ -1,0 +1,45 @@
+<\!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Portal | Children Are Future Successors</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="/images/logo.png">
+<style>
+:root{--paper:#eef3ff;--gold:#f47b20;--deep:#1338be;--muted:#5b6474;--line:#e6e8ee}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:var(--paper);color:#0e1116;line-height:1.6}
+header{background:#fff;border-bottom:1px solid var(--line)}
+.nav{max-width:1080px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:70px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;text-transform:uppercase;color:var(--deep);text-decoration:none}
+.logo img{height:46px;width:46px;border-radius:50%;object-fit:cover}.logo b{color:var(--gold)}
+.back{font-size:13px;font-weight:700;text-transform:uppercase;color:var(--muted);text-decoration:none}
+h1{font-family:Georgia,serif;font-size:44px;text-align:center;padding:40px 20px 20px;color:var(--deep)}
+.box{max-width:380px;margin:0 auto 60px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:28px;box-shadow:0 8px 22px rgba(19,56,190,.10)}
+.box label{font-weight:700;font-size:14px}.box input{width:100%;padding:12px;margin:8px 0 14px;border:1px solid #cfd6e6;border-radius:8px;font-size:16px}
+.box button{width:100%;padding:12px;background:var(--deep);color:#fff;border:0;border-radius:8px;font-weight:800;font-size:15px;cursor:pointer}
+.box button:hover{background:var(--gold)}.err{color:#c62828;font-size:14px;margin-top:10px;min-height:20px}
+#portal{max-width:860px;margin:0 auto 60px;padding:0 20px;display:none}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin-bottom:18px}
+.card h2{font-family:Georgia,serif;color:var(--deep);margin-bottom:10px;border-bottom:3px solid var(--gold);display:inline-block}
+.card ul{padding-left:20px}table{width:100%;border-collapse:collapse;margin-top:8px}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}th{color:var(--deep)}
+.card a{color:var(--deep);font-weight:700}
+.logout{display:block;margin:0 auto;padding:10px 22px;background:#fff;border:2px solid var(--deep);color:var(--deep);border-radius:8px;font-weight:800;cursor:pointer}
+footer{background:var(--deep);color:#c9d3ff;text-align:center;padding:30px 24px;font-size:13px}
+</style></head><body>
+<header><div class="nav"><a class="logo" href="index.html"><img src="images/logo.png" alt="Logo"><span>Children Are <b>Future Successors</b></span></a><a class="back" href="index.html">&larr; Home</a></div></header>
+<h1>Staff Portal</h1>
+<div class="box" id="login"><form id="f"><label for="pw">Staff password</label><input type="password" id="pw" autocomplete="current-password" required><button type="submit">Log In</button><div class="err" id="err"></div></form></div>
+<div id="portal"><div id="content"></div><button class="logout" id="out">Log Out</button></div>
+<footer>&copy; 2026 Children Are Future Successors &middot; Staff only</footer>
+<script>
+const E={"s": "oj3Ad0L9wpyX7bK3/DXycQ==", "i": "CXuty8hEqTI3gVKN", "c": "xN6+u+IlvznKhEW0UPM7fACgI8Qap9vIUTWsPPlQTy98RewJnRBCdKBY1Cfb+OQRD9D8rFESlLJSaojpWaIa22Qk3fmADeso1D0RCjoaxf96ahYt4ykOwg7g/GqiZLRHzLhoqFTc9l7VYO/k1ycZfyCNDOgrfPu6f3jX48La8HkYCkP4gM2IwhbzJRLOtnIBGk3FnwkZnapESkJvo4diqCbZ7PSHlTCb8tEPojxhoVpeMHIAoB1Y8kqKmgc0WG3VzbnQjR7Kj4mZaNliwAzZ7uWCr+hAKhFIYLP3m7dm+ZyxR9D9bYX3t1s1E88SXOe1nxkE2tOWJh1iMRSoJAF0nAgkjbQAyycmRi9TZTUPCZnPuu8UNZfE7q3gjdACqCLCFcoDUrUHdsbsoZjCFk6H/2FgTMvH7VUgts2xsgOjTw6d27zm7HzoEGmHwQrNj3SibuyBVJ4bgNHx1q5JtHNUYXzWWLtTZ9nc/cImHrf2BeV2e4B2GOtZjK0LQsOGE/8nRWbMbxheRqmspYUf4pQg+q+5c7LziHF7kzqX0p2UZ4pwiIMBGtKTKyQBGOG/FlKoqrN2YE8GpUgLy6Z5cW7p6PbKkZ7QxGGgUQvtMzb9Rmt/eVR+B7aEQUEd4VPPxN8SLn5rVn0Wyr+gfu39CgS4u93nSoTkbARKatQDBz777jWwFKvBqDuZGmVTalCkzpdwvebmQe+2KHa+Kna9JJG+1iH4/BC+0+AW0/WVqZtK9+52MkN0W6g2nrPh7xtzyQIUSNnhv2yJa38TgV0OfMBYViAGJjUVXdHds76ExPtUHvasNRWt59gZZLa9wGNoJz4F+j7OEm+BxCggKtdVCUYZbvFU2uAiGG+kM7mPnba7ZbCvLf2SIXe1E3tTSCqpqTcJItuKQcj/bMS884Zm8QBMmeUoBGmPYSVcm47c6r8ag+/fpWeWvQCI1PlbC9vS+ivRXPLLQqgzadhQb4p3Nt+r8WdXOlz/VoWvTYkHsGg8qDOFCnFZTuJcGFGMlpfdaLYiP9IjE5Eeg6YAa4QQAD+Nk98ywAr3CZMUDHZg9qLWU6K2BYT9p6HGciGy6cFIK+YAaheO3Q8mXGpVrQDAXyK+jvnCfYMHrD1F3ZdUhrN28BTXxq6ana1+D6LOyl7cLJOjHKUiWhYRRQHhvWXLhHwvh7lrwvNyw7kTYJv3JVwCnp4mW7Mhk9WwljvzryedEMiJxDvDihIWGO5SjI7oPnkMZVbpZJbfz9+85/FhWfILYwfM7WOTlOPTDLyqD5j95z6h9Nw6XbZxeHmc0gWEyvScKzyLIvjm6goto3aWzmesDb2rWw1cdYeACXiUrYXMQ+lCYpX9UmmRZPX+ll7yYmyQBgom1DzSzq6K7NDg7seycXcQ13bY1bRk2Unu30Gr+7k7iWeMAn8cNXC77Q8AH9B7NBIbBZrP+l4Gl+0JmyI9t6kQDA8zSbaDEp+KjRP8fWYVwS2km03ntigCkGGl7PqAOWdsEi/3STQ9ofRFxXJm70S3kLwxHbc7zDG+8970jzNolrW0BRQjm4bTIJtefV3I9+s/oFfAgHSrNqyRZCQWdnU1Gn93GEwLoLp/prjTFySOa1zc9nXWEiSpKpGMRPeq9pgMnHDJmvB9tp2ZKuR8l2rE91w4SbXgJVHH/cSt3I51cFLZkwCgIkwehOkO6beCJEfuP3Od2Od0n5tVW9RV112PukuWr7bq+7VuN487ZrmGSBYQA/0VoAAMwtfmFtwig5QPJk9goB17dabBF7OcgI71WlqXVmKbSbOWqiAvsoKFC1YUiHazvRbBhPDy2MD3N28YyRlc7vWCa/PmgpgCNHc/kcB4UwL7at1Afs0j9O/EuVKde/UpgMU55ORFZzLVosH01ZuFNYxcfOtpyYe3s2w+3UVishCicP0="};
+const d=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function unlock(pw){const b=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+const k=await crypto.subtle.deriveKey({name:'PBKDF2',salt:d(E.s),iterations:250000,hash:'SHA-256'},b,{name:'AES-GCM',length:256},false,['decrypt']);
+const p=await crypto.subtle.decrypt({name:'AES-GCM',iv:d(E.i)},k,d(E.c));return new TextDecoder().decode(p);}
+function show(h){document.getElementById('content').innerHTML=h;document.getElementById('login').style.display='none';document.getElementById('portal').style.display='block';}
+document.getElementById('f').addEventListener('submit',async ev=>{ev.preventDefault();const pw=document.getElementById('pw').value;document.getElementById('err').textContent='Checking...';
+try{show(await unlock(pw));sessionStorage.setItem('cafs_staff',pw);}catch(x){document.getElementById('err').textContent='Wrong password. Try again.';}});
+document.getElementById('out').addEventListener('click',()=>{sessionStorage.removeItem('cafs_staff');location.reload();});
+const saved=sessionStorage.getItem('cafs_staff');if(saved)unlock(saved).then(show).catch(()=>sessionStorage.removeItem('cafs_staff'));
+</script></body></html>
