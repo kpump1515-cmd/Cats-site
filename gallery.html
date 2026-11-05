@@ -88,5 +88,15 @@
   <a href="mailto:org.cafs@gmail.com">org.cafs@gmail.com</a> &middot; <a href="tel:+16468946937">(646) 894-6937</a> &middot;
   <a href="https://instagram.com/children_arefuturesuccessors" target="_blank" rel="noopener">@children_arefuturesuccessors</a>
 </footer>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const sb = createClient('https://dojnpcaehdyxtlmmeiff.supabase.co','sb_publishable_2vb4cfQllwG-bfBJDYUqXg_oAh1AWVk');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const { data, error } = await sb.from('photos').select('*').order('created_at',{ascending:false});
+if (!error && data && data.length) {
+  document.getElementById('galleryGrid').insertAdjacentHTML('afterbegin',
+    data.map(p => `<figure><img src="${esc(p.url)}" alt="${esc(p.caption || 'Children Are Future Successors photo')}" loading="lazy"></figure>`).join(''));
+}
+</script>
 </body>
 </html>
