@@ -107,8 +107,8 @@ footer{background:var(--deep);color:#c9d3ff;text-align:center;padding:30px 24px;
       <input type="hidden" id="evId">
       <label for="evTitle">Event name</label><input id="evTitle" required>
       <div class="two">
-        <div><label for="evWhen">When (what visitors see)</label><input id="evWhen" placeholder="Sat, Nov 21 - 2:00 PM"></div>
-        <div><label for="evDate">Date (for ordering)</label><input id="evDate" type="date"></div>
+        <div><label for="evDate">Date</label><input id="evDate" type="date"></div>
+        <div><label for="evWhen">Time or note (optional)</label><input id="evWhen" placeholder="2:00 PM"></div>
       </div>
       <label for="evDetails">Details (optional)</label><textarea id="evDetails"></textarea>
       <button class="btn" type="submit" id="evSave">Add Event</button>
@@ -180,7 +180,7 @@ async function loadEvents(){
   const { data, error } = await sb.from('events').select('*').order('sort_date',{ascending:true,nullsFirst:false}).order('created_at');
   if (error) return $('evList').innerHTML = '<p class="msg err">Could not load events.</p>';
   events = data;
-  $('evList').innerHTML = data.length ? data.map(e => `<div class="row"><div><b>${esc(e.title)}</b><small>${esc(e.when_text||'Date TBA')}</small>${e.details?`<small>${esc(e.details)}</small>`:''}</div><div class="acts"><button class="btn ghost small" data-edit="${e.id}">Edit</button><button class="btn red small" data-del="${e.id}">Delete</button></div></div>`).join('') : '<p class="msg">No events yet.</p>';
+  $('evList').innerHTML = data.length ? data.map(e => `<div class="row"><div><b>${esc(e.title)}</b><small>${esc([e.sort_date ? new Date(e.sort_date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}) : '', e.when_text||''].filter(Boolean).join(' - ') || 'Date TBA')}</small>${e.details?`<small>${esc(e.details)}</small>`:''}</div><div class="acts"><button class="btn ghost small" data-edit="${e.id}">Edit</button><button class="btn red small" data-del="${e.id}">Delete</button></div></div>`).join('') : '<p class="msg">No events yet.</p>';
 }
 function resetEv(){ $('evForm').reset(); $('evId').value=''; $('evSave').textContent='Add Event'; $('evCancel').style.display='none'; }
 $('evCancel').addEventListener('click', resetEv);

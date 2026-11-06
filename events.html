@@ -233,5 +233,26 @@
 <div class="fline">Phone: <a href="tel:+16468946937">(646) 894-6937</a></div>
 <div class="fline">Open Monday – Friday, 9:00 AM – 5:00 PM</div>
 </footer>
-<script src="content.js" type="module"></script></body>
+<script src="content.js" type="module"></script>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const sb = createClient('https://dojnpcaehdyxtlmmeiff.supabase.co','sb_publishable_2vb4cfQllwG-bfBJDYUqXg_oAh1AWVk');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const { data, error } = await sb.from('events').select('*').order('sort_date',{ascending:true,nullsFirst:false}).order('created_at');
+if (!error && data) {
+  const list = document.getElementById('eventsList');
+  if (!data.length) { list.innerHTML = '<p class="sub">No upcoming events right now. Check back soon.</p>'; }
+  else list.innerHTML = data.map(e => {
+    let month = '', dateTxt = '';
+    if (e.sort_date) {
+      const d = new Date(e.sort_date + 'T12:00:00');
+      month = d.toLocaleDateString('en-US', { month: 'long' });
+      dateTxt = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    const note = e.when_text || '';
+    const when = /TBA/i.test(note) ? note : ([dateTxt, note].filter(Boolean).join(' - ') || 'TBA');
+    return `<div class="event"><div class="month">${esc(month || (e.when_text || '').split(/[\s-]/)[0])}</div><div><h3>${esc(e.title)}</h3>${e.details ? `<p style="margin-top:4px;color:var(--muted);font-size:14px">${esc(e.details)}</p>` : ''}</div><div class="tba">${esc(when)}</div></div>`;
+  }).join('');
+}
+</script></body>
 </html>
